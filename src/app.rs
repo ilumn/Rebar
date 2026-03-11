@@ -8,8 +8,11 @@ use crate::{
 use iced::{Animation, Element, Font, Point, Size, Subscription, Task, time, window};
 use iced_plot::{PlotUiMessage, PlotWidget};
 use lucide_icons::LUCIDE_FONT_BYTES;
-use std::path::{Path, PathBuf};
-use std::time::{Duration, Instant};
+use std::{
+    path::{Path, PathBuf},
+    sync::OnceLock,
+    time::{Duration, Instant},
+};
 use widgets::{WidgetHistory, WidgetKind};
 
 pub(crate) const BAR_RADIUS: i32 = 8;
@@ -22,6 +25,7 @@ const FLYOUT_SHELL_VERTICAL_PADDING: f32 = 36.0;
 const JETBRAINS_MONO: Font = Font::with_name("JetBrains Mono");
 const JETBRAINS_MONO_BYTES: &[u8] =
     include_bytes!("../assets/fonts/JetBrainsMono[wght].ttf");
+const APP_ICON_BYTES: &[u8] = include_bytes!("../assets/icon/icon.ico");
 
 pub(crate) struct Rebar {
     pub(crate) bar_id: window::Id,
@@ -99,6 +103,7 @@ impl Rebar {
             resizable: false,
             minimizable: false,
             level: window::Level::AlwaysOnTop,
+            icon: app_icon(),
             exit_on_close_request: true,
             ..window::Settings::default()
         });
@@ -238,6 +243,7 @@ impl Rebar {
             resizable: true,
             minimizable: false,
             level: window::Level::AlwaysOnTop,
+            icon: app_icon(),
             exit_on_close_request: false,
             ..window::Settings::default()
         });
@@ -475,6 +481,37 @@ fn run_system_command(command: SystemCommand) -> Task<Message> {
 
 fn flyout_animation(duration_ms: u64, is_open: bool) -> Animation<bool> {
     Animation::new(is_open).duration(Duration::from_millis(duration_ms.max(1)))
+}
+
+fn app_icon() -> Option<window::Icon> {
+    static APP_ICON: OnceLock<Option<window::Icon>> = OnceLock::new();
+
+    APP_ICON
+        .get_or_init(|| {
+            let image = match image::load_from_memory_with_format(
+                APP_ICON_BYTES,
+                image::ImageFormat::Ico,
+            ) {
+                Ok(image) => image,
+                Err(error) => {
+                    eprintln!("Failed to decode app icon: {error}");
+                    return None;
+                }
+            };
+
+            let rgba = image.into_rgba8();
+            let width = rgba.width();
+            let height = rgba.height();
+
+            match window::icon::from_rgba(rgba.into_raw(), width, height) {
+                Ok(icon) => Some(icon),
+                Err(error) => {
+                    eprintln!("Failed to convert app icon for iced: {error}");
+                    None
+                }
+            }
+        })
+        .clone()
 }
 
 pub(crate) fn run() -> iced::Result {

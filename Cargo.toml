@@ -38,5 +38,8 @@ windows = { version = "0.58", features = [
 ] }
 windows-future = "0.2"
 
+[build-dependencies]
+winresource = "0.1"
+
 [patch.crates-io]
 iced_plot = { path = "vendor/iced_plot" }

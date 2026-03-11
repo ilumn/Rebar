@@ -502,6 +502,7 @@ mod imp {
     }
 
     unsafe fn reserve_top_edge(hwnd: HWND, height: i32) -> Result<ReservedArea, String> {
+        let hide_system_taskbar;
         {
             let mut windows = appbar_windows()
                 .lock()
@@ -510,6 +511,8 @@ mod imp {
             let Some(window) = windows.get_mut(&hwnd_key(hwnd)) else {
                 return Err(String::from("Appbar window state was missing during reservation."));
             };
+
+            hide_system_taskbar = window.hide_system_taskbar;
 
             if window.reserving {
                 let mut rect = RECT::default();
@@ -592,6 +595,7 @@ mod imp {
             return Err(error);
         }
         clear_appbar_reserving(hwnd);
+        unsafe { set_system_taskbar_hidden(hide_system_taskbar)? };
 
         Ok(ReservedArea {
             left: appbar_data.rc.left,
@@ -743,7 +747,7 @@ mod imp {
             .lock()
             .map_err(|_| String::from("System taskbar state lock was poisoned."))?;
 
-        if state.hidden_by_app == hidden {
+        if !hidden && !state.hidden_by_app {
             return Ok(());
         }
 
