@@ -1,0 +1,14 @@
+/target
+
+# Runtime config generated next to the executable.
+/rebar.toml
+
+# Editor settings
+/.idea/
+/.vscode/
+*.user
+*.rsuser
+
+# Windows shell metadata
+Thumbs.db
+Desktop.ini
