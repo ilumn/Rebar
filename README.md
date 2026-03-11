@@ -13,7 +13,7 @@ Right side:
 - Media Playback
 
 ## Gallery
-![](docs/screenshots/example (4).png)
+<img width="2559" height="1439" alt="example (4)" src="https://github.com/user-attachments/assets/cb9e11a0-2779-437e-8e20-c5fc44d53fd8" />
 
 
 ## Build
