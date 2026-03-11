@@ -5,8 +5,6 @@
 
 
 \
-\
-\
 Rebar is a Windows top taskbar replacement built with Rust and `iced`.
 
 It reserves a block at the top of the monitor, themes itself from the current wallpaper automatically, and provides expanding widgets for:
